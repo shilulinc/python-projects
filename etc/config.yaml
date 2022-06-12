@@ -1,0 +1,90 @@
+app:
+  name: foo
+namespace: rcrai
+
+containerPorts:
+  http: 8080
+  grpc: 1024
+
+metrics:
+  enabled: false
+  port: 18089
+
+##
+image:
+  registry: rcrai.tencentcloudcr.com
+  namespace: recurrent-customize
+  tag: r_1.0.0
+
+# 自定义command, 暂时注释
+# command: []
+
+extraEnvVars:
+  - name: APP_NAME
+    value: bar
+  - name: HTTP_PORT
+    value: '8080'
+  - name: CLUSTER_URL
+    value: http://qux
+
+staticSiteConfigmap:
+  enabled: false
+  config:
+    - mountPath: /app/huskar.yaml
+      configName: huskar.yaml
+      appName: foo
+
+replicaCount: 20
+
+resources:
+  ##
+  ## limits:
+  ##   cpu: 100m
+  ##   memory: 128Mi
+  ## requests:
+  ##   cpu: 100m
+  ##   memory: 128Mi
+
+
+livenessProbe:
+  enabled: false
+  initialDelaySeconds: 30
+  timeoutSeconds: 5
+  periodSeconds: 10
+  failureThreshold: 6
+  successThreshold: 1
+  httpGet:
+    path: /healthz
+    port: 8080
+
+readinessProbe:
+  enabled: false
+  initialDelaySeconds: 5
+  timeoutSeconds: 3
+  periodSeconds: 5
+  failureThreshold: 3
+  successThreshold: 1
+  httpGet:
+    path: /healthz
+    port: 8080
+
+service:
+  type: ClusterIP
+  port: 80
+  grpc: false
+
+ingress:
+  enabled: false
+  hosts:
+    - hostname: foo.example.com
+      path: /api/(.*)
+      tls: false
+      rewrite: true
+      rewriteTargetPath: /api/$1
+    - hostname: xyz.example.com
+      path: /open/call/
+      tls: true
+      rewrite: false
+
+
+

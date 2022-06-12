@@ -1,0 +1,85 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: foo
+    app_name: foo
+  name: foo
+  namespace: rcrai
+spec:
+  replicas: 20
+  selector:
+    matchLabels:
+      app_name: foo
+  strategy:
+    rollingUpdate:
+      maxSurge: 6
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+      
+      labels:
+        app: foo
+        app_name: foo
+    spec:
+      containers:
+      - env:
+
+  
+        - name: APP_NAME
+          value: foo
+    
+        - name: HTTP_PORT
+          value: '8080'
+    
+        - name: CLUSTER_URL
+          value: http://qux
+
+        image: rcrai.tencentcloudcr.com/rcrai/foo:latest:$VERSION
+        imagePullPolicy: Always
+        name: foo
+        ports:
+        - containerPort: 80
+          protocol: TCP
+
+
+        livenessProbe:
+          failureThreshold: 6
+          httpGet:
+            path: /healthz
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+
+
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 3
+
+
+        volumeMounts:
+        - mountPath: /app/huskar.yaml
+          name: foo-config
+          subPath: huskar.yaml
+
+      volumes:
+      - configMap:
+          defaultMode: 438
+          name: foo-config
+        name: foo-config
+      imagePullSecrets:
+      - name: tke-docker-pull
+      restartPolicy: Always

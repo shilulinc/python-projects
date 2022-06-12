@@ -1,0 +1,26 @@
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: prod-ingress-controller
+    
+    nginx.ingress.kubernetes.io/rewrite-target: /api/$1
+    
+    nginx.ingress.kubernetes.io/proxy-body-size: 200m
+    nginx.ingress.kubernetes.io/service-weight: ''
+
+  name: foo.example.com-api
+  namespace: rcrai
+spec:
+  rules:
+  - host: foo.example.com
+    http:
+      paths:
+      # 基于入口为基准的ingress规则, backend 只存在一个.
+      - backend:
+          serviceName: foo
+          servicePort: 80
+        path: /api/(.*)
+        pathType: ImplementationSpecific
+  

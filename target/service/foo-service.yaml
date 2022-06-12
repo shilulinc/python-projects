@@ -1,0 +1,22 @@
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: foo
+  name: foo
+  namespace: rcrai
+spec:
+  ports:
+  - name: tcp
+    port: 80
+    protocol: TCP
+    targetPort: 8080
+  
+  selector:
+    app: foo
+  sessionAffinity: None
+  type: ClusterIP
+
+
+

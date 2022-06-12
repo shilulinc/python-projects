@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{deployment | default ('{应用名称(必填项)}')}}
+  name: {{deployment | default ('{应用名称(必填项)}')}}
+  namespace: {{namespace | default ('{应用所在命名空间, 测试环境:release, 生产环境:rcrai(必填项)}')}}
+spec:
+  replicas: {{replicas | default ('1')}}
+  selector:
+    matchLabels:
+      app: {{deployment | default ('{应用名称(必填项)}')}}
+  strategy:
+    rollingUpdate:
+      maxSurge: {{maxsurge | default ('1')}}
+      maxUnavailable: {{maxunavailable | default ('0')}}
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        prometheus.io/port: '18089'
+        prometheus.io/scrape: 'true'
+      labels:
+        app: {{deployment | default ('{应用名称(必填项)}')}}
+    spec:
+      containers:
+      - env:
+        - name: {{key}}
+          value: http://{{service | default ('{服务名称(必填项)}')}}:{{port | default ('{服务端口(必填项)}')}}
+        image: rcrai.tencentcloudcr.com/recurrent-customize/{{deployment | default ('{应用名称(必填项)}')}}:{{tag | default ('{镜像版本(必填项)}')}}
+        imagePullPolicy: Always
+        name: {{deployment | default ('{应用名称(必填项)}')}}
+        ports:
+        - containerPort: 80
+          protocol: TCP
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+      - name: tke-docker-pull
+      restartPolicy: Always
+      schedulerName: default-scheduler
