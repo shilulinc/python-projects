@@ -53,7 +53,7 @@ def try_open_template(template_path):
     except jinja2.exceptions.TemplateNotFound as TemplateNotFound:
         print("jinja2.exceptions.TemplateNotFound: %s " % TemplateNotFound)
         sys.exit(1)
-    except jinja2.exceptions.Undefined as Undefined:
+    except jinja2.exceptions.UndefinedError as Undefined:
         print("jinja2.exceptions.Undefined: %s" % Undefined)
         sys.exit(1)
     return tpl
